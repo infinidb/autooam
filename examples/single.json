@@ -1,0 +1,11 @@
+    {
+        "name" : "single",
+        "rolespec" : {
+            "pm" : {
+                "count" : 1,
+                "dbroots_per" : 1,
+                "cpus" : 4,
+                "memory" : 4096
+                }
+            }
+    }

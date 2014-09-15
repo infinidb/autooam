@@ -1,0 +1,10 @@
+---
+# main yml file to perform package installation of infinidb
+
+- hosts: infinidb_nodes
+  roles:
+    - pkgpreinstall
+
+- hosts: '{{ pm1_host }}'
+  roles:
+    - pkginstall

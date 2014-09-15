@@ -1,0 +1,15 @@
+    {
+        "name" : "1um_2pm",
+        "binary" : true,
+	"nonrootuser" : true,
+	"idbuser" : "calpont",
+	"rolespec" : {
+            "pm" : {
+                "count" : 2,
+                "dbroots_per" : 1
+                },
+            "um" : {
+                "count" : 1
+                }
+            }
+    }

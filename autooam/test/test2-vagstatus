@@ -1,0 +1,52 @@
+There were warnings and/or errors while loading your Vagrantfile
+for the machine 'pm2'.
+
+Your Vagrantfile was written for an earlier version of Vagrant,
+and while Vagrant does the best it can to remain backwards
+compatible, there are some cases where things have changed
+significantly enough to warrant a message. These messages are
+shown below.
+
+Warnings:
+* `config.vm.customize` calls are VirtualBox-specific. If you're
+using any other provider, you'll have to use config.vm.provider in a
+v2 configuration block.
+
+There were warnings and/or errors while loading your Vagrantfile
+for the machine 'um1'.
+
+Your Vagrantfile was written for an earlier version of Vagrant,
+and while Vagrant does the best it can to remain backwards
+compatible, there are some cases where things have changed
+significantly enough to warrant a message. These messages are
+shown below.
+
+Warnings:
+* `config.vm.customize` calls are VirtualBox-specific. If you're
+using any other provider, you'll have to use config.vm.provider in a
+v2 configuration block.
+
+There were warnings and/or errors while loading your Vagrantfile
+for the machine 'pm1'.
+
+Your Vagrantfile was written for an earlier version of Vagrant,
+and while Vagrant does the best it can to remain backwards
+compatible, there are some cases where things have changed
+significantly enough to warrant a message. These messages are
+shown below.
+
+Warnings:
+* `config.vm.customize` calls are VirtualBox-specific. If you're
+using any other provider, you'll have to use config.vm.provider in a
+v2 configuration block.
+
+Current machine states:
+
+pm2                       running (virtualbox)
+um1                       running (virtualbox)
+pm1                       running (virtualbox)
+
+This environment represents multiple VMs. The VMs are all listed
+above with their current state. For more information about a specific
+VM, run `vagrant status NAME`.
+

@@ -1,0 +1,20 @@
+    {
+        "name" : "1um_2pm",
+	"rolespec" : {
+            "pm" : {
+                "count" : 2,
+                "dbroots_per" : 1,
+                "memory" : 8192
+                },
+            "um" : {
+                "count" : 1,
+                "memory" : 8192
+                }
+            },
+        "hadoop" : {
+            "version" : "1.2.1",
+            "instance-templates" : "2 hadoop-datanode+hadoop-tasktracker,1 hadoop-namenode+hadoop-jobtracker",
+            "templates-namenode" : "um1",
+            "templates-datanode" : "pm1+pm2"
+            }
+    }

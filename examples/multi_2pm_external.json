@@ -1,0 +1,10 @@
+    {
+        "name" : "2pm",
+        "storage" : "external",
+	"rolespec" : {
+            "pm" : {
+                "count" : 2,
+                "dbroots_per" : 1
+                }
+            }
+    }

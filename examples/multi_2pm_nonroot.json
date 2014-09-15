@@ -1,0 +1,12 @@
+    {
+        "name" : "2pm",
+        "binary" : true,
+	"nonrootuser" : true,
+	"idbuser" : "calpont",
+	"rolespec" : {
+            "pm" : {
+                "count" : 2,
+                "dbroots_per" : 1
+                }
+            }
+    }

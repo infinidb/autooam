@@ -1,0 +1,40 @@
+#!/bin/bash
+
+# Note that we don't execute "mount" command for any of the DBRoots.
+# We wait and let OAM decide which DbRoots to mount on each PM.
+
+dbrootStorageType=<%= @dbroot_storage_type %>
+idbUser=<%= @idbuser %>
+
+if [ $dbrootStorageType = 'external' ]; then
+
+  dbrootCount=<%= @dbroot_count %>
+  remoteDbRootBaseDir=vagrantdir/<%= @remote_dbroot_basedir %>
+  localDbRootBaseDir=<%= @idbinstalldir %>
+
+  for (( i=1; i<=$dbrootCount; i++ ))
+  do
+    dbRootSubDir="data"$i
+    remoteDbRootPath=$remoteDbRootBaseDir/$dbRootSubDir
+    localDbRootPath=$localDbRootBaseDir/$dbRootSubDir
+
+    echo "Checking mount: $remoteDbRootPath -> $localDbRootPath"
+
+    if mount | grep $localDbRootPath > /dev/null; then
+      echo "$localDbRootPath already mounted!"
+    else
+      if grep $localDbRootPath /etc/fstab > /dev/null; then
+        echo "$localDbRootPath already in fstab!"
+      else
+        echo "Adding $localDbRootPath to fstab"
+        mkdir $localDbRootPath
+        if [ $idbUser != 'root' ]; then
+          echo "/mnt/autooam/$remoteDbRootPath $localDbRootPath none noatime,nodiratime,noauto,bind,users 0 0" >> /etc/fstab
+        else
+          echo "/mnt/autooam/$remoteDbRootPath $localDbRootPath none noatime,nodiratime,noauto,bind 0 0" >> /etc/fstab
+        fi
+      fi
+    fi
+  done
+
+fi

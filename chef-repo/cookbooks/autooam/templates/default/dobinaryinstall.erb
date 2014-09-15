@@ -1,0 +1,26 @@
+#!/bin/bash
+
+# expect this to run from /home/<idbuser> as <idbuser>
+# first, we only want to do a binary install if the system is not already installed
+if [ ! -f <%= @idbinstalldir %>/etc/Calpont.xml ]; then
+
+  tar -zxf "/packages/<%= @pkgfile %>" -C <%= @tardir %> 
+
+  # copy over the package file for remote installs
+  cp /packages/<%= @pkgfile %> /<%= @homedir %>/.
+fi
+
+if [ "<%= @idbuser %>" = "root" ]; 
+then
+  <%= @idbinstalldir %>/bin/post-install
+else
+  <%= @idbinstalldir %>/bin/post-install --installdir=<%= @idbinstalldir %>
+fi
+
+
+# technically, post-install wants us to do this, but because chef is making
+# separate shell calls it wouldn't do any good anyway.  We make it work 
+# because these are set in the .bashrc file and already sourced
+# export INFINIDB_INSTALL_DIR=<%= @idbinstalldir %>
+# export LD_LIBRARY_PATH=<%= @idbinstalldir %>/lib:<%= @idbinstalldir %>}/mysql/lib/mysql
+  

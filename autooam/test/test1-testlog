@@ -1,0 +1,32 @@
+
+
+
+###############################################################################
+        Automated Test Report  *************************
+        autooam version: $AUTOOAM_VERSION, machine: $HOSTNAME 
+###############################################################################
+        
+
+-------------------------------------------------------------------------------
+        New cluster created at   *************************
+        
+        Cluster Name        : test-report
+        Cluster ID          : ************************
+        InfiniDB version    : 3.5.1-5 (Ent)
+        Boxtype             : cal-precise64
+        Config Name         : 1um_2pm
+        IDB User            : root
+        Data Duplication    : False
+        Binary Installation : False
+        DBRoot Storage Type : internal
+        Full config         : ^
+
+-------------------------------------------------------------------------------
+my001     a unit test test suite:                  Passed   0:00:00
+my002     another test suite:                      Failed   0:00:00
+
+
+-------------------------------------------------------------------------------
+Run Summary:
+Elapsed time   : **************
+Passing        : 1 of 2 (50.0%)

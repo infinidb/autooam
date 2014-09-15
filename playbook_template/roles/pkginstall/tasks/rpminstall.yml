@@ -1,0 +1,24 @@
+---
+# # install infinidb deb packages
+
+- name: install infinidb rpm packages for version 4.0 and up
+  command: rpm -i /root/{{ item }}
+  with_items:
+    - infinidb-libs-{{ pkgver }}.x86_64.rpm
+    - infinidb-platform-{{ pkgver }}.x86_64.rpm
+    - infinidb-mysql-{{ pkgver }}.x86_64.rpm
+    - infinidb-storage-engine-{{ pkgver }}.x86_64.rpm
+  when: pkgbasever >= '4'
+- name: install infinidb rpm enterprise package for version 4.0 and up
+  command: rpm -i /root/{{ item }}
+  with_items:
+    - infinidb-enterprise-{{ pkgver }}.x86_64.rpm
+  when: pkgbasever >= '4' and enterprise | bool
+
+- name: install infinidb rpm packages for pre-4.0 versions
+  command: rpm -i /root/{{ item }}
+  with_items:
+    - calpont-{{ pkgver }}.x86_64.rpm
+    - calpont-mysqld-{{ pkgver }}.x86_64.rpm
+    - calpont-mysql-{{ pkgver }}.x86_64.rpm
+  when: pkgbasever < '4'

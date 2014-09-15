@@ -1,0 +1,9 @@
+Current VM states:
+
+pm2                      not created
+um1                      not created
+pm1                      not created
+
+This environment represents multiple VMs. The VMs are all listed
+above with their current state. For more information about a specific
+VM, run `vagrant status NAME`.

@@ -1,0 +1,45 @@
+#!/bin/bash
+
+idbUser=<%= @idbuser %>
+
+if mount | grep "/mnt/autooam" > /dev/null; then
+  echo "autooam already mounted!"
+else
+  if grep "/mnt/autooam" /etc/fstab > /dev/null; then
+    echo "autooam already in fstab!"
+    if [ $idbUser == 'root' ]; then
+       mount -a
+    else
+       sudo mount -a
+    fi
+  else 
+    mkdir /mnt/autooam
+    echo "<%= @hostip %>:<%= @autooam_home %> /mnt/autooam nfs rw,nfsvers=3,_netdev 0 0" >> /etc/fstab
+    if [ $idbUser == 'root' ]; then
+       mount -a    
+    else       
+       sudo mount -a
+    fi
+  fi
+fi
+
+if mount | grep "/mnt/opt-autooam" > /dev/null; then
+  echo "opt-autooam already mounted!"
+else
+  if grep "/mnt/opt-autooam" /etc/fstab > /dev/null; then
+    echo "opt-autooam already in fstab!"
+    if [ $idbUser == 'root' ]; then
+       mount -a        
+    else              
+       sudo mount -a
+    fi
+  else 
+    mkdir /mnt/opt-autooam
+    echo "<%= @hostip %>:/opt/autooam /mnt/opt-autooam nfs ro,_netdev 0 0" >> /etc/fstab
+    if [ $idbUser == 'root' ]; then
+       mount -a        
+    else              
+       sudo mount -a
+    fi
+  fi
+fi

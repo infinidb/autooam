@@ -1,0 +1,36 @@
+---
+# Erase old infinidb deb packages, and install new ones
+
+# For some reason, our rpm uninstall, copies or moves the Calpont.xml file,
+# but our debian uninstall does not.  So for debian system, we include an
+# explicit step to move Calpont.xml to Calpont.xml.rpmsave.
+- name: save off the previous Calpont.xml config file
+  shell: mv {{ idbinstalldir }}/etc/Calpont.xml {{ idbinstalldir }}/etc/Calpont.xml.rpmsave
+- name: erase previous packages for version 4.0 and up
+  shell: dpkg-query -W -f '${package}\n' | grep infinidb | xargs dpkg -P
+  when: pkgbasever >= '4'
+- name: erase previous packages for pre-4.0 versions
+  shell: dpkg-query -W -f '${package}\n' | grep calpont | xargs dpkg -P
+  when: pkgbasever < '4'
+
+- name: install new infinidb deb packages for version 4.0 and up
+  command: dpkg -i /root/{{ item }}
+  with_items:
+    - infinidb-libs_{{ upgver }}_amd64.deb
+    - infinidb-platform_{{ upgver }}_amd64.deb
+    - infinidb-mysql_{{ upgver }}_amd64.deb
+    - infinidb-storage-engine_{{ upgver }}_amd64.deb
+  when: upgbasever >= '4'
+- name: install new infinidb deb enterprise package for version 4.0 and up
+  command: dpkg -i /root/{{ item }}
+  with_items:
+    - infinidb-enterprise_{{ upgver }}_amd64.deb
+  when: upgbasever >= '4' and enterprise | bool
+
+- name: install new infinidb deb packages for pre-4.0 versions
+  command: dpkg -i /root/{{ item }}
+  with_items:
+    - calpont_{{ upgver }}_amd64.deb
+    - calpont-mysqld_{{ upgver }}_amd64.deb
+    - calpont-mysql_{{ upgver }}_amd64.deb
+  when: upgbasever < '4'

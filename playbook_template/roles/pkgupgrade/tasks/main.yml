@@ -1,0 +1,16 @@
+---
+# Uninstall old infinidb version, copy and install
+# new infinidb package files, and run postConfigure
+
+- name: copy infinidb tar file
+  copy: src={{ pkgdir }}/{{ upgfile }} dest=/root/{{ upgfilebase }}
+- name: untar the infinidb tar file
+  command: tar -zxf /root/{{ upgfilebase }} chdir=/root
+- include: rpminstall.yml
+  when: ansible_os_family == 'RedHat'
+- include: debinstall.yml
+  when: ansible_os_family != 'RedHat'
+- name: modify previous Calpont.xml config file
+  command: sed -i "s/<DBRootStorageType>local<\\/DBRootStorageType>/<DBRootStorageType>internal<\\/DBRootStorageType>/" {{ idbinstalldir }}/etc/Calpont.xml.rpmsave
+- name: run postconfigure
+  command: "{{ idbinstalldir }}/bin/postConfigure {{ postconfig_opts }} -n -c {{ idbinstalldir }}/etc/Calpont.xml.rpmsave"

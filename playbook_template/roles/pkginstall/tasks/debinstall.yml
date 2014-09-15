@@ -1,0 +1,24 @@
+---
+# install infinidb deb packages
+
+- name: install infinidb deb packages for version 4.0 and up
+  command: dpkg -i /root/{{ item }}
+  with_items:
+    - infinidb-libs_{{ pkgver }}_amd64.deb
+    - infinidb-platform_{{ pkgver }}_amd64.deb
+    - infinidb-mysql_{{ pkgver }}_amd64.deb
+    - infinidb-storage-engine_{{ pkgver }}_amd64.deb
+  when: pkgbasever >= '4'
+- name: install infinidb deb enterprise package for version 4.0 and up
+  command: dpkg -i /root/{{ item }}
+  with_items:
+    - infinidb-enterprise_{{ pkgver }}_amd64.deb
+  when: pkgbasever >= '4' and enterprise | bool
+
+- name: install infinidb deb packages for pre-4.0 versions
+  command: dpkg -i /root/{{ item }}
+  with_items:
+    - calpont_{{ pkgver }}_amd64.deb
+    - calpont-mysqld_{{ pkgver }}_amd64.deb
+    - calpont-mysql_{{ pkgver }}_amd64.deb
+  when: pkgbasever < '4'

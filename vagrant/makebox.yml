@@ -1,0 +1,166 @@
+---
+- hosts: all
+  sudo: True
+  vars:
+  tasks:
+  
+  - name: check selinux
+    command: grep "SELINUX=disabled" /etc/selinux/config 
+    ignore_errors: yes
+    register: selinux_disabled
+    when: ansible_os_family == "RedHat"
+  
+  - name: disable selinux (RedHat only)
+    command: sed -i "s/^SELINUX=.*/SELINUX=disabled/" /etc/selinux/config
+    when: ansible_os_family == "RedHat" and selinux_disabled|failed
+    
+  - name: reboot the system if selinux needed to be disabled
+    sudo: False
+    local_action: command vagrant halt chdir={{ boxdir }}
+    when: ansible_os_family == "RedHat" and selinux_disabled|failed
+  - name: reboot the system if selinux needed to be disabled
+    sudo: False
+    local_action: command vagrant up chdir={{ boxdir }}
+    when: ansible_os_family == "RedHat" and selinux_disabled|failed
+     
+  - name: jdk install - create /usr/java
+    file: path=/usr/java state=directory owner=root group=root mode=0755
+  - name: check jdk
+    stat: path=/usr/java/jdk1.7.0_55
+    register: jdkdir
+  - name: jdk install - untar
+    shell: "tar xvzf /vagrant/jdk-7u55-linux-x64.gz -C /usr/java"
+    when: jdkdir.stat.isdir is not defined or not jdkdir.stat.isdir 
+  - name: jdk symlink - link to /usr/java/default
+    file: path=/usr/java/default src=/usr/java/jdk1.7.0_55 state=link 
+  - name: jdk alternatives   
+    command: "{{ item }}"
+    with_items:
+    - alternatives --install /usr/bin/java java /usr/java/default/bin/java 200000
+    - alternatives --install /usr/bin/javac javac /usr/java/default/bin/javac 200000
+    - alternatives --install /usr/bin/javaws javaws /usr/java/default/bin/javaws 200000
+    - alternatives --install /usr/bin/jar jar /usr/java/default/bin/jar 200000
+    when: ansible_os_family == "RedHat"
+  - name: jdk alternatives   
+    command: "{{ item }}"
+    with_items:    
+    - update-alternatives --install /usr/bin/java java /usr/java/default/bin/java 100
+    - update-alternatives --install /usr/bin/javac javac /usr/java/default/bin/java 100
+    - update-alternatives --install /usr/bin/javaws javaws /usr/java/default/bin/java 100
+    - update-alternatives --install /usr/bin/jar jar /usr/java/default/bin/java 100
+    when: ansible_os_family == "Debian"
+  
+  # install the rpmforge repo if we are on centos
+  - name: rpmforge repo 
+    shell: "rpm -qa | grep rpmforge"
+    ignore_errors: yes
+    register: has_rpmforge
+    when: ansible_os_family == "RedHat"
+  - name: rpmforge repo 
+    command: wget http://pkgs.repoforge.org/rpmforge-release/rpmforge-release-0.5.3-1.el6.rf.x86_64.rpm
+    when: ansible_os_family == "RedHat" and has_rpmforge|failed
+  - name: rpmforge repo 
+    command: rpm --import http://apt.sw.be/RPM-GPG-KEY.dag.txt
+    ignore_errors: yes
+    when: ansible_os_family == "RedHat" and has_rpmforge|failed
+  - name: rpmforge repo 
+    command: rpm -i rpmforge-release-0.5.3-1.el6.rf.*.rpm
+    when: ansible_os_family == "RedHat" and has_rpmforge|failed
+
+  - name: check for prereqs (yum)
+    yum: name={{ item }} state=present
+    with_items:
+    - expect
+    - libtool-ltdl
+    - ntp
+    - cairo
+    - python-setuptools
+    - pdsh
+    - curl
+    when: ansible_os_family == "RedHat"
+ 
+  - name: check for prereqs (apt)
+    apt: name={{ item }} state=present update_cache=yes 
+    with_items:
+    - expect
+    - libltdl7
+    - ntp
+    - python-setuptools
+    - pdsh
+    - curl
+    when: ansible_os_family == "Debian"
+
+  - name: check for prereqs (apt-Ubuntu+Debian7)
+    apt: name={{ item }} state=present
+    with_items:
+    - libcairo2
+    - libpython2.7
+    when: ansible_distribution == "Ubuntu" or (ansible_distribution == "Debian" and ansible_distribution_version[0] == "7")
+
+  - name: check for prereqs (apt-Debian6)
+    apt: name={{ item }} state=present
+    with_items:
+    - libcairo2
+    - libpython2.6
+    when: ansible_distribution == "Debian" and ansible_distribution_version[0] == "6" 
+    
+  - name: start the ntp service
+    service: name=ntpd enabled=yes state=started
+    when: ansible_os_family == "RedHat"
+  - name: start the ntp service
+    service: name=ntp enabled=yes state=started
+    when: ansible_os_family == "Debian"
+
+  # set hard ntp sync on startup
+  - name: copy rc.local (RedHat)
+    copy: src=rc.local.redhat dest=/etc/rc.d/rc.local mode=755 owner=root group=root
+    when: ansible_os_family == "RedHat"
+  - name: copy rc.local (Debian)
+    copy: src=rc.local.deb dest=/etc/rc.local mode=755 owner=root group=root
+    when: ansible_os_family == "Debian"
+    
+  - name: stop the iptables service
+    service: name=iptables enabled=no state=stopped
+    ignore_errors: yes
+
+  - name: install pip
+    command: easy_install pip
+
+  - name: install virtualenv
+    command: easy_install virtualenv
+  
+  - name: ensure no requiretty for sudo
+    command: sed -i "s/.*requiretty.*/#Defaults requiretty/" /etc/sudoers
+
+  - name: enable core files
+    command: sed -i 's/#\*.*soft.*core.*0/\* soft core unlimited/g' /etc/security/limits.conf
+  
+  - name: disable strict hostkey checking
+    command: sed -i 's/^.*StrictHostKeyChecking.*$/StrictHostKeyChecking=no/' /etc/ssh/ssh_config
+  - name: disable strict hostkey checking
+    command: sed -i 's/^.*UseDNS.*$/UseDNS no/' /etc/ssh/sshd_config
+  
+  - name: check for chef-solo
+    ignore_errors: yes
+    command: which chef-solo
+    register: has_chef
+  - name: install chef-solo
+    shell: "curl -L https://www.opscode.com/chef/install.sh | bash"
+    when: has_chef|failed
+    
+  # sanity check our boxes
+  - name: check for chef-solo
+    shell: "chef-solo -v | grep Chef"
+  - name: check for java
+    shell: "java -version 2>&1 | grep 1.7.0_55"
+  - name: check for pip
+    shell: "pip -V | grep pip"
+  - name: check for virtualenv
+    command: virtualenv --version
+  - name: check pdsh version
+    shell: "pdsh -V | perl -ne \"if(/pdsh-([0-9]\\.[0-9]+)/) { exit ((\\\\$1 ge '2.27') ? 0 : 1); }\""
+    ignore_errors: yes
+    register: pdsh_vercheck
+  - name: pdsh warning
+    debug: msg="Warning...this box will not support InfiniDB Hadoop installs that require PDSH 2.27 or later"
+    when:  pdsh_vercheck|failed

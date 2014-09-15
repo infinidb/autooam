@@ -1,0 +1,31 @@
+---
+# Erase old infinidb rpm packages, and install new ones
+
+- name: erase previous packages for version 4.0 and up
+  shell: rpm -qa | grep infinidb | xargs rpm -e
+  when: pkgbasever >= '4'
+- name: erase previous packages for pre-4.0 versions
+  shell: rpm -qa | grep calpont | xargs rpm -e
+  when: pkgbasever < '4'
+
+- name: install new infinidb rpm packages for version 4.0 and up
+  command: rpm -i /root/{{ item }}
+  with_items:
+    - infinidb-libs-{{ upgver }}.x86_64.rpm
+    - infinidb-platform-{{ upgver }}.x86_64.rpm
+    - infinidb-mysql-{{ upgver }}.x86_64.rpm
+    - infinidb-storage-engine-{{ upgver }}.x86_64.rpm
+  when: upgbasever >= '4'
+- name: install new infinidb rpm enterprise package for version 4.0 and up
+  command: rpm -i /root/{{ item }}
+  with_items:
+    - infinidb-enterprise-{{ upgver }}.x86_64.rpm
+  when: upgbasever >= '4' and enterprise | bool
+
+- name: install new infinidb rpm packages for pre-4.0 versions
+  command: rpm -i /root/{{ item }}
+  with_items:
+    - calpont-{{ upgver }}.x86_64.rpm
+    - calpont-mysqld-{{ upgver }}.x86_64.rpm
+    - calpont-mysql-{{ upgver }}.x86_64.rpm
+  when: upgbasever < '4'

@@ -1,0 +1,5 @@
+#!/bin/bash
+
+if grep '<InitialInstallFlag>n</InitialInstallFlag>' <%= @idbinstalldir %>/etc/Calpont.xml > /dev/null; then
+  su - <%= @idbuser %> -c "export JAVA_HOME=/usr/java/jdk1.6.0_31; export LD_LIBRARY_PATH=/usr/java/jdk1.6.0_31/jre/lib/amd64/server; . <%= @hadoopenv %>; cat /vagrant/postconfigure.in | <%= @idbinstalldir %>/bin/postConfigure -p '<%= @idbuserpasswd %>' <%= @postconfig_opts %>"
+fi

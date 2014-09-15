@@ -1,0 +1,93 @@
+#!/bin/sh
+
+show_help ()
+{
+  echo "Usage: `basename $0` [-snh] <Infinidb version> <run-list> <num-tests>"
+  echo "            -h show this help message"
+  echo "            -s run with standard edition packages"
+  echo "            -n do not cleanup old runs"
+  exit 1
+}
+
+# A POSIX variable
+OPTIND=1         # Reset in case getopts has been used previously in the shell.
+
+# Initialize our own variables:
+cleanup=1
+standard=""
+
+while getopts "hsn" opt; do
+    case "$opt" in
+    h)
+        show_help
+        exit 0
+        ;;
+    s)  standard="-s"
+        ;;
+    n)  cleanup=0
+        ;;
+    esac
+done
+
+shift $((OPTIND-1))
+
+[ "$1" = "--" ] && shift
+
+if [ $# -ne 3 ]
+then
+  echo "Not enough arguments!"
+  show_help
+  exit 1
+fi
+
+crondir="$HOME/cron"
+if [ ! -d "$crondir" ]; then
+  mkdir $crondir
+fi
+
+dt=`date +"%Y%m%d"`
+log="$HOME/cron/$dt-$1-$2"
+
+# USER env variable is undefined for cron job, so we assign a value for emtools
+export USER=$LOGNAME
+
+echo "---Starting cron job at `date`" >> $log.cron
+
+# Make sure ansible is installed
+ansibledir="$HOME/ansible"
+if [ ! -d "$ansibledir" ]; then
+  echo "Ansible needs to be installed into $ansibledir" >> $log.cron
+  exit 2
+fi
+
+# Setup emtools
+emtools=$HOME/infinidb-em-tools
+if [ ! -d "$emtools" ]; then
+  echo "Emtools needs to be installed into $emtools" >> $log.cron
+  exit 2
+fi
+# Don't ask me why, but it sometimes takes 2 "pulls" to get latest changes,
+# so we are executing "git pull" twice
+echo "Updating $emtools..." >> $log.cron 2>&1
+cd $emtools
+git pull >> $log.cron 2>&1
+git pull >> $log.cron 2>&1
+
+# Setup autooam
+autooam=$HOME/workspace/autooam
+cd $autooam
+. ./setenv
+echo "Updating $autooam..." >> $log.cron 2>&1
+git pull >> $log.cron 2>&1
+
+if [ $cleanup -eq 1 ]
+then
+  echo "Executing cleanup"
+  $autooam/bin/clustercmd.py destroy test-mgr.*
+  cmd="$autooam/bin/cleanorphans.py -p"
+  $cmd >> $log.cron 2>&1
+fi
+
+cmd="$autooam/bin/autorun.py -r $standard $3 $1 $2 $log.log"
+$cmd >> $log.cron 2>&1
+

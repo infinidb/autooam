@@ -1,0 +1,19 @@
+---
+# Copy and install infinidb pkg files, and run postConfigure
+
+- name: copy infinidb pkg tar file
+  copy: src={{ pkgdir }}/{{ pkgfile }} dest=/root/{{ pkgfilebase }}
+- name: copy postconfigure input file
+  copy: src={{ rundir }}/postconfigure.in dest=/root/postconfigure.in
+- name: untar the infinidb tar file
+  command: tar -zxf /root/{{ pkgfilebase }} chdir=/root
+- include: rpminstall.yml
+  when: ansible_os_family == 'RedHat'
+- include: debinstall.yml
+  when: ansible_os_family != 'RedHat'
+- name: test for prior install
+  command: grep 'InitialInstallFlag>n</InitialInstallFlag' {{ idbinstalldir }}/etc/Calpont.xml
+  register: installFlagIsN
+  ignore_errors: true
+- include: postconfig.yml
+  when: installFlagIsN|success

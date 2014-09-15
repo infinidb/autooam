@@ -1,0 +1,13 @@
+    {
+        "name" : "1um_2pm",
+        "binary" : true,
+	"rolespec" : {
+            "pm" : {
+                "count" : 2,
+                "dbroots_per" : 1
+                },
+            "um" : {
+                "count" : 1
+                }
+            }
+    }

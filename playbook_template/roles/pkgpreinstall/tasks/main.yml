@@ -1,0 +1,9 @@
+---
+# Execute steps to prepare all hosts for a pkg install
+
+- name: install (copy) healthcheck for version 4.0 and up
+  copy: src={{ pkgdir }}/{{ pkgver }}/packages/Calpont/bin/healthcheck dest=/root/healthcheck
+  when: pkgbasever >= '4'
+- name: symbolically link (copy) healthcheck for pre-4.0 versions
+  shell: ln -s /usr/local/Calpont/bin/healthcheck /root/healthcheck
+  when: pkgbasever < '4'

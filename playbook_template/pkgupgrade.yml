@@ -1,0 +1,6 @@
+---
+# main yml file to perform binary upgrade of infinidb
+
+- hosts: '{{ pm1_host }}'
+  roles:
+    - pkgupgrade

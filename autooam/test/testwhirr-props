@@ -1,0 +1,9 @@
+whirr.cluster-name=my-clustername
+whirr.cluster-user=vagrant
+whirr.instance-templates=1 hadoop-namenode+hadoop-jobtracker,2 hadoop-datanode+hadoop-tasktracker
+whirr.service-name=byon
+whirr.provider=byon
+jclouds.byon.endpoint=file://$AUTOOAM_HOME/autooam/test/nodes-byon.yaml
+whirr.provider=whirr.java.install-function = install_oracle_jdk6
+whirr.hadoop.install-function=install_cdh_hadoop
+whirr.hadoop.configure-function=configure_cdh_hadoop

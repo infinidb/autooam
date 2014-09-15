@@ -1,0 +1,11 @@
+---
+# Execute healthcheck steps to prepare all hosts for a binary install from a tar file
+
+- name: install (copy) healthcheck for version 4.0 and up
+  sudo: no
+  copy: src={{ pkgdir }}/{{ pkgver }}/packages/Calpont/bin/healthcheck dest={{ homedir }}/healthcheck
+  when: pkgbasever >= '4'
+- name: symbolically link (copy) healthcheck for pre-4.0 versions
+  sudo: no
+  shell: ln -s {{ idbinstalldir }}/bin/healthcheck {{ homedir }}/healthcheck
+  when: pkgbasever < '4'

@@ -1,0 +1,18 @@
+---
+# Run postConfigure
+
+- name: find hdfs setenv script
+  shell: grep 'DataFileEnvFile' {{ idbinstalldir }}/etc/Calpont.xml | cut -d '<' -f2 | cut -d '>' -f2
+  when: hdfs | bool
+  register: hdfsenv
+
+- name: Make copy of existing Calpont.xml
+  shell: cp {{ idbinstalldir }}/etc/Calpont.xml {{ homedir }}/Calpont.xml.pre_postconfigure
+
+- name: run hdfs postconfigure
+  shell: bash -c ". {{ idbinstalldir }}/bin/{{ hdfsenv.stdout }}; cat {{ homedir }}/postconfigure.in | {{ idbinstalldir }}/bin/postConfigure {{ postconfig_opts }} > postconfigure.log 2>&1" chdir={{ homedir }} 
+  when: hdfs | bool
+
+- name: run non-hdfs postconfigure
+  shell: cat {{ homedir }}/postconfigure.in | {{ idbinstalldir }}/bin/postConfigure {{ postconfig_opts }} > postconfigure.log 2>&1 chdir={{ homedir }}
+  when: not hdfs | bool

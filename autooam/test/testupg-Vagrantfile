@@ -1,0 +1,97 @@
+Vagrant::Config.run do |config|
+  host_map = {
+    :hostip => '192.168.1.1',
+    :autooam_home => '$AUTOOAM_HOME',
+    :pkgfile => '3.5.1-5/packages/calpont-infinidb-ent-3.5.1-5.amd64.deb.tar.gz',
+    :pkgversion => '3.5.1-5',
+    :upgfile => '9.9-9/packages/infinidb-ent-9.9-9.amd64.deb.tar.gz',
+    :upgversion => '9.9-9',
+    :idbuser => 'root',
+    :dbroot_storage_type => 'internal',
+    :dbroot_count => '4',
+    :remote_dbroot_basedir => 'none',
+    :postconfig_opts => ' ',
+    :machines => [
+      { :hostname => '192-168-1-2', :role => 'pm1', :ip => '192.168.1.2' },
+      { :hostname => '192-168-1-3', :role => 'pm2', :ip => '192.168.1.3' },
+      { :hostname => '192-168-1-4', :role => 'pm3', :ip => '192.168.1.4' },
+      { :hostname => '192-168-1-5', :role => 'pm4', :ip => '192.168.1.5' },
+      { :hostname => '192-168-1-6', :role => 'um1', :ip => '192.168.1.6' }
+    ]
+  }
+
+config.vm.define :pm2 do |pm2_config|
+  pm2_config.vm.share_folder "pkgs", "/packages", "$AUTOOAM_HOME/autooam/test/pkg-cache"
+  pm2_config.vm.host_name = "192-168-1-3"
+  pm2_config.vm.box = "cal-precise64"
+  pm2_config.vm.network :hostonly, "192.168.1.3"
+  pm2_config.vm.customize ["modifyvm", :id, "--memory", 1024]
+  pm2_config.vm.customize ["modifyvm", :id, "--cpus", 2]
+  pm2_config.vm.provision :chef_solo do |chef|
+    chef.cookbooks_path = "$AUTOOAM_HOME/chef-repo/cookbooks"
+    chef.roles_path = "$AUTOOAM_HOME/chef-repo/roles"
+    chef.json = host_map
+    chef.add_role("root_key")
+  end
+end
+
+config.vm.define :pm3 do |pm3_config|
+  pm3_config.vm.share_folder "pkgs", "/packages", "$AUTOOAM_HOME/autooam/test/pkg-cache"
+  pm3_config.vm.host_name = "192-168-1-4"
+  pm3_config.vm.box = "cal-precise64"
+  pm3_config.vm.network :hostonly, "192.168.1.4"
+  pm3_config.vm.customize ["modifyvm", :id, "--memory", 1024]
+  pm3_config.vm.customize ["modifyvm", :id, "--cpus", 2]
+  pm3_config.vm.provision :chef_solo do |chef|
+    chef.cookbooks_path = "$AUTOOAM_HOME/chef-repo/cookbooks"
+    chef.roles_path = "$AUTOOAM_HOME/chef-repo/roles"
+    chef.json = host_map
+    chef.add_role("root_key")
+  end
+end
+
+config.vm.define :pm4 do |pm4_config|
+  pm4_config.vm.share_folder "pkgs", "/packages", "$AUTOOAM_HOME/autooam/test/pkg-cache"
+  pm4_config.vm.host_name = "192-168-1-5"
+  pm4_config.vm.box = "cal-precise64"
+  pm4_config.vm.network :hostonly, "192.168.1.5"
+  pm4_config.vm.customize ["modifyvm", :id, "--memory", 1024]
+  pm4_config.vm.customize ["modifyvm", :id, "--cpus", 2]
+  pm4_config.vm.provision :chef_solo do |chef|
+    chef.cookbooks_path = "$AUTOOAM_HOME/chef-repo/cookbooks"
+    chef.roles_path = "$AUTOOAM_HOME/chef-repo/roles"
+    chef.json = host_map
+    chef.add_role("root_key")
+  end
+end
+
+config.vm.define :um1 do |um1_config|
+  um1_config.vm.share_folder "pkgs", "/packages", "$AUTOOAM_HOME/autooam/test/pkg-cache"
+  um1_config.vm.host_name = "192-168-1-6"
+  um1_config.vm.box = "cal-precise64"
+  um1_config.vm.network :hostonly, "192.168.1.6"
+  um1_config.vm.customize ["modifyvm", :id, "--memory", 2048]
+  um1_config.vm.customize ["modifyvm", :id, "--cpus", 2]
+  um1_config.vm.provision :chef_solo do |chef|
+    chef.cookbooks_path = "$AUTOOAM_HOME/chef-repo/cookbooks"
+    chef.roles_path = "$AUTOOAM_HOME/chef-repo/roles"
+    chef.json = host_map
+    chef.add_role("root_key")
+  end
+end
+
+config.vm.define :pm1 do |pm1_config|
+  pm1_config.vm.share_folder "pkgs", "/packages", "$AUTOOAM_HOME/autooam/test/pkg-cache"
+  pm1_config.vm.host_name = "192-168-1-2"
+  pm1_config.vm.box = "cal-precise64"
+  pm1_config.vm.network :hostonly, "192.168.1.2"
+  pm1_config.vm.customize ["modifyvm", :id, "--memory", 1024]
+  pm1_config.vm.customize ["modifyvm", :id, "--cpus", 2]
+  pm1_config.vm.provision :chef_solo do |chef|
+    chef.cookbooks_path = "$AUTOOAM_HOME/chef-repo/cookbooks"
+    chef.roles_path = "$AUTOOAM_HOME/chef-repo/roles"
+    chef.json = host_map
+    chef.add_role("root_key")
+  end
+end
+end

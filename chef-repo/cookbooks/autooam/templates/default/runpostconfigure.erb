@@ -1,0 +1,6 @@
+#!/bin/bash
+
+if grep '<InitialInstallFlag>n</InitialInstallFlag>' <%= @idbinstalldir %>/etc/Calpont.xml > /dev/null; then
+  su - <%= @idbuser %> -c "cat /vagrant/postconfigure.in | <%= @idbinstalldir %>/bin/postConfigure -p '<%= @idbuserpasswd %>' <%= @postconfig_opts %>"
+fi
+

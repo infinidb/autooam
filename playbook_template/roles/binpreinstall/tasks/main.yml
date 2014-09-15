@@ -1,0 +1,8 @@
+---
+# Execute preliminary steps for binary install
+# Overrides default main.yml defined in infinidb-em-tools, so
+# that autooam mode can include extra healthcheck step that EM
+# mode does not need (because EM performs it's own sanity checks)
+
+- include: setup.yml
+- include: healthcheck.yml
